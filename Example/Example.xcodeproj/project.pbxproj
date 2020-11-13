@@ -14,18 +14,10 @@
 		18D3D5D1255F1EF4000C99BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18D3D5D0255F1EF4000C99BE /* Assets.xcassets */; };
 		18D3D5D4255F1EF4000C99BE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18D3D5D2255F1EF4000C99BE /* LaunchScreen.storyboard */; };
 		18D3D5DF255F1EF4000C99BE /* ExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3D5DE255F1EF4000C99BE /* ExampleTests.swift */; };
-		18D3D5EA255F1EF4000C99BE /* ExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3D5E9255F1EF4000C99BE /* ExampleUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		18D3D5DB255F1EF4000C99BE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 18D3D5BC255F1EF3000C99BE /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 18D3D5C3255F1EF3000C99BE;
-			remoteInfo = Example;
-		};
-		18D3D5E6255F1EF4000C99BE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 18D3D5BC255F1EF3000C99BE /* Project object */;
 			proxyType = 1;
@@ -46,9 +38,6 @@
 		18D3D5DA255F1EF4000C99BE /* ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		18D3D5DE255F1EF4000C99BE /* ExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleTests.swift; sourceTree = "<group>"; };
 		18D3D5E0255F1EF4000C99BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		18D3D5E5255F1EF4000C99BE /* ExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		18D3D5E9255F1EF4000C99BE /* ExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleUITests.swift; sourceTree = "<group>"; };
-		18D3D5EB255F1EF4000C99BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,13 +55,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		18D3D5E2255F1EF4000C99BE /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -81,7 +63,6 @@
 			children = (
 				18D3D5C6255F1EF3000C99BE /* Example */,
 				18D3D5DD255F1EF4000C99BE /* ExampleTests */,
-				18D3D5E8255F1EF4000C99BE /* ExampleUITests */,
 				18D3D5C5255F1EF3000C99BE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -91,7 +72,6 @@
 			children = (
 				18D3D5C4255F1EF3000C99BE /* Example.app */,
 				18D3D5DA255F1EF4000C99BE /* ExampleTests.xctest */,
-				18D3D5E5255F1EF4000C99BE /* ExampleUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,15 +97,6 @@
 				18D3D5E0255F1EF4000C99BE /* Info.plist */,
 			);
 			path = ExampleTests;
-			sourceTree = "<group>";
-		};
-		18D3D5E8255F1EF4000C99BE /* ExampleUITests */ = {
-			isa = PBXGroup;
-			children = (
-				18D3D5E9255F1EF4000C99BE /* ExampleUITests.swift */,
-				18D3D5EB255F1EF4000C99BE /* Info.plist */,
-			);
-			path = ExampleUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -166,24 +137,6 @@
 			productReference = 18D3D5DA255F1EF4000C99BE /* ExampleTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		18D3D5E4255F1EF4000C99BE /* ExampleUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 18D3D5F4255F1EF4000C99BE /* Build configuration list for PBXNativeTarget "ExampleUITests" */;
-			buildPhases = (
-				18D3D5E1255F1EF4000C99BE /* Sources */,
-				18D3D5E2255F1EF4000C99BE /* Frameworks */,
-				18D3D5E3255F1EF4000C99BE /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				18D3D5E7255F1EF4000C99BE /* PBXTargetDependency */,
-			);
-			name = ExampleUITests;
-			productName = ExampleUITests;
-			productReference = 18D3D5E5255F1EF4000C99BE /* ExampleUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -197,10 +150,6 @@
 						CreatedOnToolsVersion = 12.2;
 					};
 					18D3D5D9255F1EF4000C99BE = {
-						CreatedOnToolsVersion = 12.2;
-						TestTargetID = 18D3D5C3255F1EF3000C99BE;
-					};
-					18D3D5E4255F1EF4000C99BE = {
 						CreatedOnToolsVersion = 12.2;
 						TestTargetID = 18D3D5C3255F1EF3000C99BE;
 					};
@@ -221,7 +170,6 @@
 			targets = (
 				18D3D5C3255F1EF3000C99BE /* Example */,
 				18D3D5D9255F1EF4000C99BE /* ExampleTests */,
-				18D3D5E4255F1EF4000C99BE /* ExampleUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -238,13 +186,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		18D3D5D8255F1EF4000C99BE /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		18D3D5E3255F1EF4000C99BE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -272,14 +213,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		18D3D5E1255F1EF4000C99BE /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				18D3D5EA255F1EF4000C99BE /* ExampleUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -287,11 +220,6 @@
 			isa = PBXTargetDependency;
 			target = 18D3D5C3255F1EF3000C99BE /* Example */;
 			targetProxy = 18D3D5DB255F1EF4000C99BE /* PBXContainerItemProxy */;
-		};
-		18D3D5E7255F1EF4000C99BE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 18D3D5C3255F1EF3000C99BE /* Example */;
-			targetProxy = 18D3D5E6255F1EF4000C99BE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -509,44 +437,6 @@
 			};
 			name = Release;
 		};
-		18D3D5F5255F1EF4000C99BE /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = ExampleUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmbloom.ExampleUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Example;
-			};
-			name = Debug;
-		};
-		18D3D5F6255F1EF4000C99BE /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = ExampleUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmbloom.ExampleUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Example;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -573,15 +463,6 @@
 			buildConfigurations = (
 				18D3D5F2255F1EF4000C99BE /* Debug */,
 				18D3D5F3255F1EF4000C99BE /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		18D3D5F4255F1EF4000C99BE /* Build configuration list for PBXNativeTarget "ExampleUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				18D3D5F5255F1EF4000C99BE /* Debug */,
-				18D3D5F6255F1EF4000C99BE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
