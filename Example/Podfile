@@ -7,4 +7,9 @@ target 'Example' do
 
   # Pods for Example
 
+  target 'ExampleTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
 end
