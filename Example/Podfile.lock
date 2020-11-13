@@ -1,0 +1,27 @@
+PODS:
+  - Dendrogram (0.1.0)
+  - Nimble (7.3.4)
+  - Quick (1.2.0)
+
+DEPENDENCIES:
+  - Dendrogram (from `../`)
+  - Nimble (~> 7.0)
+  - Quick (~> 1.2.0)
+
+SPEC REPOS:
+  trunk:
+    - Nimble
+    - Quick
+
+EXTERNAL SOURCES:
+  Dendrogram:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  Dendrogram: be24c302794cc1a830117e77e80613e49e2ce769
+  Nimble: 051e3d8912d40138fa5591c78594f95fb172af37
+  Quick: 58d203b1c5e27fff7229c4c1ae445ad7069a7a08
+
+PODFILE CHECKSUM: 91ae1ff72d061181bbe3c2e9c2e9f9e28402c540
+
+COCOAPODS: 1.10.0
