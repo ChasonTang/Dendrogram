@@ -11,8 +11,8 @@ target 'Example' do
   target 'ExampleTests' do
     inherit! :search_paths
     # Pods for testing
-    pod 'Quick', '~> 1.2.0'
-    pod 'Nimble', '~> 7.0'
+    pod 'Quick', '~> 3.0.0'
+    pod 'Nimble', '~> 9.0.0'
   end
 
 end
