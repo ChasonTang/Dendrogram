@@ -21,7 +21,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Dendrogram: 871d5a2ab9d818b52fb673558afa16a134bc3548
+  Dendrogram: eeb196f5c632be41556975904f36f4a4ff1b610d
   Nimble: 051e3d8912d40138fa5591c78594f95fb172af37
   Quick: 58d203b1c5e27fff7229c4c1ae445ad7069a7a08
   Yoga: cff67a400f6b74dc38eb0bad4f156673d9aa980c
