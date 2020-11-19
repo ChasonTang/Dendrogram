@@ -11,51 +11,51 @@ import yoga
 // lazy
 fileprivate let screenScale = UIScreen.main.scale
 
-fileprivate let globalYogaConfig = YogaConfig();
+fileprivate let globalYogaConfig = YGConfigNew()
 
-fileprivate struct YogaConfig {
+fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMode: YGMeasureMode, _ height: Float, _ heightMode: YGMeasureMode) -> YGSize {
+    var result: YGSize = YGSize()
 
-    let yogaConfig = DMYGConfigNew();
-
-    init() {
-        YGConfigSetPointScaleFactor(yogaConfig, Float(screenScale))
-        YGConfigSetUseLegacyStretchBehaviour(yogaConfig, true)
+    guard let shadowViewPointer = YGNodeGetContext(node) else {
+        return result
     }
+    let shadowView = Unmanaged<ShadowView>.fromOpaque(shadowViewPointer).takeUnretainedValue()
+
+    var intrinsicContentSize = shadowView.intrinsicContentSize
+    // Replace `UIViewNoIntrinsicMetric` (which equals `-1`) with zero.
+    intrinsicContentSize.width = max(0, intrinsicContentSize.width)
+    intrinsicContentSize.height = max(0, intrinsicContentSize.height)
+
+    switch widthMode {
+    case .undefined:
+        result.width = Float(intrinsicContentSize.width)
+    case .exactly:
+        result.width = width
+    case .atMost:
+        result.width = min(width, Float(intrinsicContentSize.width))
+    @unknown default:
+        return result
+    }
+    
+    switch heightMode {
+    case .undefined:
+        result.height = Float(intrinsicContentSize.height)
+    case .exactly:
+        result.height = height
+    case .atMost:
+        result.height = min(height, Float(intrinsicContentSize.height))
+    @unknown default:
+        return result
+    }
+
+    return result
 }
 
-fileprivate enum DisplayType {
-    case none
-    case flex
-    // 未实现 inline
-    case inline
-}
+final class ShadowView {
 
-fileprivate struct LayoutMetrics {
+    private let yogaNode: YGNodeRef?
 
-    private let frame: CGRect
-
-    private let contentFrame: CGRect
-
-    private let borderWidth: UIEdgeInsets
-
-    private let layoutDirection: UIUserInterfaceLayoutDirection
-}
-
-fileprivate struct LayoutContext {
-
-    private let absolutePosition: CGPoint
-
-    private let affectedShadowViews: NSHashTable<ShadowView>
-
-    /// 实际上没有使用
-    private let other: NSHashTable<NSString>
-}
-
-fileprivate final class ShadowView {
-
-    private let yogaNode: YGNodeRef
-
-    private var layoutMetrics: LayoutMetrics;
+    private var layoutMetrics: LayoutMetrics?;
 
     /**
      * Position and dimensions.
@@ -63,79 +63,91 @@ fileprivate final class ShadowView {
      */
     private var top: YGValue {
         get {
-            YGNodeStyleGetPosition(yogaNode, YGEdgeTop)
+            YGNodeStyleGetPosition(yogaNode, .top)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetPosition(yogaNode, YGEdgeTop, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetPosition(yogaNode, YGEdgeTop, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetPositionPercent(yogaNode, YGEdgeTop, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPosition(yogaNode, .top, Float.nan)
+            case .point: YGNodeStyleSetPosition(yogaNode, .top, newValue.value)
+            case .percent: YGNodeStyleSetPositionPercent(yogaNode, .top, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var left: YGValue {
         get {
-            YGNodeStyleGetPosition(yogaNode, YGEdgeLeft)
+            YGNodeStyleGetPosition(yogaNode, .left)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetPosition(yogaNode, YGEdgeLeft, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetPosition(yogaNode, YGEdgeLeft, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetPositionPercent(yogaNode, YGEdgeLeft, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPosition(yogaNode, .left, Float.nan)
+            case .point: YGNodeStyleSetPosition(yogaNode, .left, newValue.value)
+            case .percent: YGNodeStyleSetPositionPercent(yogaNode, .left, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var bottom: YGValue {
         get {
-            YGNodeStyleGetPosition(yogaNode, YGEdgeBottom)
+            YGNodeStyleGetPosition(yogaNode, .bottom)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetPosition(yogaNode, YGEdgeBottom, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetPosition(yogaNode, YGEdgeBottom, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetPositionPercent(yogaNode, YGEdgeBottom, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPosition(yogaNode, .bottom, Float.nan)
+            case .point: YGNodeStyleSetPosition(yogaNode, .bottom, newValue.value)
+            case .percent: YGNodeStyleSetPositionPercent(yogaNode, .bottom, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var right: YGValue {
         get {
-            YGNodeStyleGetPosition(yogaNode, YGEdgeRight)
+            YGNodeStyleGetPosition(yogaNode, .right)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetPosition(yogaNode, YGEdgeRight, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetPosition(yogaNode, YGEdgeRight, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetPositionPercent(yogaNode, YGEdgeRight, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPosition(yogaNode, .right, Float.nan)
+            case .point: YGNodeStyleSetPosition(yogaNode, .right, newValue.value)
+            case .percent: YGNodeStyleSetPositionPercent(yogaNode, .right, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var start: YGValue {
         get {
-            YGNodeStyleGetPosition(yogaNode, YGEdgeStart)
+            YGNodeStyleGetPosition(yogaNode, .start)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetPosition(yogaNode, YGEdgeStart, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetPosition(yogaNode, YGEdgeStart, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetPositionPercent(yogaNode, YGEdgeStart, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPosition(yogaNode, .start, Float.nan)
+            case .point: YGNodeStyleSetPosition(yogaNode, .start, newValue.value)
+            case .percent: YGNodeStyleSetPositionPercent(yogaNode, .start, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var end: YGValue {
         get {
-            YGNodeStyleGetPosition(yogaNode, YGEdgeEnd)
+            YGNodeStyleGetPosition(yogaNode, .end)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetPosition(yogaNode, YGEdgeEnd, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetPosition(yogaNode, YGEdgeEnd, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetPositionPercent(yogaNode, YGEdgeEnd, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPosition(yogaNode, .end, Float.nan)
+            case .point: YGNodeStyleSetPosition(yogaNode, .end, newValue.value)
+            case .percent: YGNodeStyleSetPositionPercent(yogaNode, .end, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -146,10 +158,12 @@ fileprivate final class ShadowView {
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetWidthAuto(yogaNode)
-            case YGUnitUndefined: YGNodeStyleSetWidth(yogaNode, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetWidth(yogaNode, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetWidthPercent(yogaNode, newValue.value)
+            case .auto: YGNodeStyleSetWidthAuto(yogaNode)
+            case .undefined: YGNodeStyleSetWidth(yogaNode, Float.nan)
+            case .point: YGNodeStyleSetWidth(yogaNode, newValue.value)
+            case .percent: YGNodeStyleSetWidthPercent(yogaNode, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -159,10 +173,12 @@ fileprivate final class ShadowView {
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetHeightAuto(yogaNode)
-            case YGUnitUndefined: YGNodeStyleSetHeight(yogaNode, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetHeight(yogaNode, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetHeightPercent(yogaNode, newValue.value)
+            case .auto: YGNodeStyleSetHeightAuto(yogaNode)
+            case .undefined: YGNodeStyleSetHeight(yogaNode, Float.nan)
+            case .point: YGNodeStyleSetHeight(yogaNode, newValue.value)
+            case .percent: YGNodeStyleSetHeightPercent(yogaNode, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -173,10 +189,12 @@ fileprivate final class ShadowView {
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMinWidth(yogaNode, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMinWidth(yogaNode, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMinWidthPercent(yogaNode, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetMinWidth(yogaNode, Float.nan)
+            case .point: YGNodeStyleSetMinWidth(yogaNode, newValue.value)
+            case .percent: YGNodeStyleSetMinWidthPercent(yogaNode, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -186,10 +204,12 @@ fileprivate final class ShadowView {
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMaxWidth(yogaNode, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMaxWidth(yogaNode, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMaxWidthPercent(yogaNode, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetMaxWidth(yogaNode, Float.nan)
+            case .point: YGNodeStyleSetMaxWidth(yogaNode, newValue.value)
+            case .percent: YGNodeStyleSetMaxWidthPercent(yogaNode, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -199,10 +219,12 @@ fileprivate final class ShadowView {
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMinHeight(yogaNode, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMinHeight(yogaNode, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMinHeightPercent(yogaNode, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetMinHeight(yogaNode, Float.nan)
+            case .point: YGNodeStyleSetMinHeight(yogaNode, newValue.value)
+            case .percent: YGNodeStyleSetMinHeightPercent(yogaNode, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -212,10 +234,12 @@ fileprivate final class ShadowView {
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMaxHeight(yogaNode, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMaxHeight(yogaNode, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMaxHeightPercent(yogaNode, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetMaxHeight(yogaNode, Float.nan)
+            case .point: YGNodeStyleSetMaxHeight(yogaNode, newValue.value)
+            case .percent: YGNodeStyleSetMaxHeightPercent(yogaNode, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -224,76 +248,77 @@ fileprivate final class ShadowView {
      * Convenient alias to `width` and `height` in pixels.
      * Defaults to NAN in case of non-pixel dimension.
      */
+    @available(*, deprecated, message: "直接使用 width 和 height，否则 auto 值被忽略")
     private var size: CGSize {
         get {
             let width = YGNodeStyleGetWidth(yogaNode)
             let height = YGNodeStyleGetHeight(yogaNode)
 
-            CGSize(width: width.unit == YGUnitPoint ? width.value : CGFloat.nan, height: CGFloat.nan)
+            return CGSize(width: width.unit == .point ? CGFloat(width.value) : CGFloat.nan, height: height.unit == .point ? CGFloat(width.value) : CGFloat.nan)
         }
         set {
-            YGNodeStyleSetWidth(yogaNode, newValue.width)
-            YGNodeStyleSetHeight(yogaNode, newValue.height)
+            YGNodeStyleSetWidth(yogaNode, Float(newValue.width))
+            YGNodeStyleSetHeight(yogaNode, Float(newValue.height))
         }
     }
 
     /**
      * Border. Defaults to { 0, 0, 0, 0 }.
      */
-    private var borderWidth: Float32 {
+    private var borderWidth: Float {
         get {
-            YGNodeStyleGetBorder(yogaNode, YGEdgeAll)
+            YGNodeStyleGetBorder(yogaNode, .all)
         }
         set {
-            YGNodeStyleSetBorder(yogaNode, YGEdgeAll, newValue)
+            YGNodeStyleSetBorder(yogaNode, .all, newValue)
         }
     }
-    private var borderTopWidth: Float32 {
+    private var borderTopWidth: Float {
         get {
-            YGNodeStyleGetBorder(yogaNode, YGEdgeTop)
+            YGNodeStyleGetBorder(yogaNode, .top)
         }
         set {
-            YGNodeStyleSetBorder(yogaNode, YGEdgeTop, newValue)
+            YGNodeStyleSetBorder(yogaNode, .top, newValue)
         }
     }
-    private var borderLeftWidth: Float32 {
+    private var borderLeftWidth: Float {
         get {
-            YGNodeStyleGetBorder(yogaNode, YGEdgeLeft)
+            YGNodeStyleGetBorder(yogaNode, .left)
         }
         set {
-            YGNodeStyleSetBorder(yogaNode, YGEdgeLeft, newValue)
+            YGNodeStyleSetBorder(yogaNode, .left, newValue)
         }
     }
-    private var borderBottomWidth: Float32 {
+    private var borderBottomWidth: Float {
         get {
-            YGNodeStyleGetBorder(yogaNode, YGEdgeBottom)
+            YGNodeStyleGetBorder(yogaNode, .bottom)
         }
         set {
-            YGNodeStyleSetBorder(yogaNode, YGEdgeBottom, newValue)
+            YGNodeStyleSetBorder(yogaNode, .bottom, newValue)
         }
     }
-    private var borderRightWidth: Float32 {
+    private var borderRightWidth: Float {
         get {
-            YGNodeStyleGetBorder(yogaNode, YGEdgeRight)
+            YGNodeStyleGetBorder(yogaNode, .right)
         }
         set {
-            YGNodeStyleSetBorder(yogaNode, YGEdgeRight, newValue)
+            YGNodeStyleSetBorder(yogaNode, .right, newValue)
         }
     }
-    private var borderStartWidth: Float32 {
+    private var borderStartWidth: Float {
         get {
-            YGNodeStyleGetBorder(yogaNode, YGEdgeStart)
+            YGNodeStyleGetBorder(yogaNode, .start)
         }
         set {
-            YGNodeStyleSetBorder(yogaNode, YGEdgeStart, newValue)
+            YGNodeStyleSetBorder(yogaNode, .start, newValue)
         }
     }
-    private var borderEndWidth: Float32 {
+    private var borderEndWidth: Float {
         get {
-            YGNodeStyleGetBorder(yogaNode, YGEdgeEnd)
+            YGNodeStyleGetBorder(yogaNode, .end)
         }
         set {
-            YGNodeStyleSetBorder(yogaNode, YGEdgeEnd, newValue)
+            YGNodeStyleSetBorder(yogaNode, .end, newValue)
         }
     }
 
@@ -302,118 +327,136 @@ fileprivate final class ShadowView {
      */
     private var margin: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeAll)
+            YGNodeStyleGetMargin(yogaNode, .all)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeAll)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeAll, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeAll, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeAll, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .all)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .all, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .all, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .all, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var marginVertical: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeVertical)
+            YGNodeStyleGetMargin(yogaNode, .vertical)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeVertical)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeVertical, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeVertical, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeVertical, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .vertical)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .vertical, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .vertical, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .vertical, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var marginHorizontal: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeHorizontal)
+            YGNodeStyleGetMargin(yogaNode, .horizontal)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeHorizontal)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeHorizontal, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeHorizontal, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeHorizontal, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .horizontal)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .horizontal, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .horizontal, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .horizontal, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var marginTop: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeTop)
+            YGNodeStyleGetMargin(yogaNode, .top)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeTop)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeTop, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeTop, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeTop, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .top)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .top, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .top, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .top, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var marginLeft: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeLeft)
+            YGNodeStyleGetMargin(yogaNode, .left)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeLeft)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeLeft, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeLeft, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeLeft, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .left)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .left, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .left, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .left, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var marginBottom: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeBottom)
+            YGNodeStyleGetMargin(yogaNode, .bottom)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeBottom)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeBottom, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeBottom, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeBottom, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .bottom)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .bottom, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .bottom, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .bottom, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var marginRight: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeRight)
+            YGNodeStyleGetMargin(yogaNode, .right)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeRight)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeRight, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeRight, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeRight, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .right)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .right, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .right, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .right, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var marginStart: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeStart)
+            YGNodeStyleGetMargin(yogaNode, .start)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeStart)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeStart, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeStart, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeStart, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .start)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .start, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .start, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .start, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var marginEnd: YGValue {
         get {
-            YGNodeStyleGetMargin(yogaNode, YGEdgeEnd)
+            YGNodeStyleGetMargin(yogaNode, .end)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetMarginAuto(yogaNode, YGEdgeEnd)
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeEnd, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeEnd, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeEnd, newValue.value)
+            case .auto: YGNodeStyleSetMarginAuto(yogaNode, .end)
+            case .undefined: YGNodeStyleSetMargin(yogaNode, .end, Float.nan)
+            case .point: YGNodeStyleSetMargin(yogaNode, .end, newValue.value)
+            case .percent: YGNodeStyleSetMarginPercent(yogaNode, .end, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -423,118 +466,136 @@ fileprivate final class ShadowView {
      */
     private var padding: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeAll)
+            YGNodeStyleGetPadding(yogaNode, .all)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeEnd, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeEnd, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeEnd, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .end, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .end, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .end, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var paddingVertical: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeVertical)
+            YGNodeStyleGetPadding(yogaNode, .vertical)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeVertical, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeVertical, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeVertical, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .vertical, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .vertical, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .vertical, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var paddingHorizontal: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeHorizontal)
+            YGNodeStyleGetPadding(yogaNode, .horizontal)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeHorizontal, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeHorizontal, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeHorizontal, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .horizontal, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .horizontal, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .horizontal, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var paddingTop: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeTop)
+            YGNodeStyleGetPadding(yogaNode, .top)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeTop, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeTop, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeTop, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .top, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .top, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .top, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var paddingLeft: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeLeft)
+            YGNodeStyleGetPadding(yogaNode, .left)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeLeft, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeLeft, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeLeft, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .left, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .left, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .left, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var paddingBottom: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeBottom)
+            YGNodeStyleGetPadding(yogaNode, .bottom)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeBottom, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeBottom, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeBottom, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .bottom, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .bottom, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .bottom, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var paddingRight: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeRight)
+            YGNodeStyleGetPadding(yogaNode, .right)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeRight, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeRight, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeRight, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .right, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .right, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .right, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var paddingStart: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeStart)
+            YGNodeStyleGetPadding(yogaNode, .start)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeStart, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeStart, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeStart, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .start, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .start, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .start, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
     private var paddingEnd: YGValue {
         get {
-            YGNodeStyleGetPadding(yogaNode, YGEdgeEnd)
+            YGNodeStyleGetPadding(yogaNode, .end)
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: fallthrough
-            case YGUnitUndefined: YGNodeStyleSetMargin(yogaNode, YGEdgeEnd, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetMargin(yogaNode, YGEdgeEnd, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetMarginPercent(yogaNode, YGEdgeEnd, newValue.value)
+            case .auto: fallthrough
+            case .undefined: YGNodeStyleSetPadding(yogaNode, .end, Float.nan)
+            case .point: YGNodeStyleSetPadding(yogaNode, .end, newValue.value)
+            case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .end, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
@@ -607,7 +668,7 @@ fileprivate final class ShadowView {
         }
     }
 
-    private var flex: Float32 {
+    private var flex: Float {
         get {
             YGNodeStyleGetFlex(yogaNode)
         }
@@ -615,7 +676,7 @@ fileprivate final class ShadowView {
             YGNodeStyleSetFlex(yogaNode, newValue)
         }
     }
-    private var flexGrow: Float32 {
+    private var flexGrow: Float {
         get {
             YGNodeStyleGetFlexGrow(yogaNode)
         }
@@ -623,7 +684,7 @@ fileprivate final class ShadowView {
             YGNodeStyleSetFlexGrow(yogaNode, newValue)
         }
     }
-    private var flexShrink: Float32 {
+    private var flexShrink: Float {
         get {
             YGNodeStyleGetFlexShrink(yogaNode)
         }
@@ -637,15 +698,17 @@ fileprivate final class ShadowView {
         }
         set {
             switch newValue.unit {
-            case YGUnitAuto: YGNodeStyleSetFlexBasisAuto(yogaNode)
-            case YGUnitUndefined: YGNodeStyleSetFlexBasis(yogaNode, Float.nan)
-            case YGUnitPoint: YGNodeStyleSetFlexBasis(yogaNode, newValue.value)
-            case YGUnitPercent: YGNodeStyleSetFlexBasisPercent(yogaNode, newValue.value)
+            case .auto: YGNodeStyleSetFlexBasisAuto(yogaNode)
+            case .undefined: YGNodeStyleSetFlexBasis(yogaNode, Float.nan)
+            case .point: YGNodeStyleSetFlexBasis(yogaNode, newValue.value)
+            case .percent: YGNodeStyleSetFlexBasisPercent(yogaNode, newValue.value)
+            @unknown default:
+                fatalError()
             }
         }
     }
 
-    private var aspectRatio: Float32 {
+    private var aspectRatio: Float {
         get {
             YGNodeStyleGetAspectRatio(yogaNode)
         }
@@ -684,59 +747,88 @@ fileprivate final class ShadowView {
      * Represents the natural size of the view, which is used when explicit size is not set or is ambiguous.
      * Defaults to `{UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric}`.
      */
-    private var intrinsicContentSize: CGSize {
+    fileprivate var intrinsicContentSize: CGSize {
         get {
             intrinsicContentSizeStore
         }
         set {
-            if intrinsicContentSizeStore.equalTo(newValue) {
+            if intrinsicContentSizeStore == newValue {
                 return
             }
             intrinsicContentSizeStore = newValue
-            if intrinsicContentSizeStore.equalTo(CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)) {
+            if intrinsicContentSizeStore == CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric) {
                 YGNodeSetMeasureFunc(yogaNode, nil)
             } else {
-                // TODO(唐佳诚): 设置
-//                YGNodeSetMeasureFunc(yogaNode, YGMeasureFunc(<#T##some: CFunctionPointer<(YGNodeRef?, Float, YGMeasureMode, Float, YGMeasureMode) -> YGSize>##CFunctionPointer<(YGNodeRef?, Swift.Float, YGMeasureMode, Swift.Float, YGMeasureMode) -> YGSize>#>))
+                YGNodeSetMeasureFunc(yogaNode, ShadowViewMeasure)
             }
 
             YGNodeMarkDirty(yogaNode)
         }
     }
 
-    // TODO(唐佳诚): 修改类型为 [ShadowView]
     private var subviews: [ShadowView]? {
         get {
-            nil;
+            var subviewArray: [ShadowView]? = nil;
+            let count = YGNodeGetChildCount(yogaNode);
+            for i in 0..<count {
+                let childNodRef = YGNodeGetChild(yogaNode, i)
+                guard (childNodRef != nil) else {
+                    continue
+                }
+                guard let shadowViewPointer = YGNodeGetContext(yogaNode) else {
+                    continue
+                }
+                if subviewArray == nil {
+                    subviewArray = []
+                }
+                let shadowView = Unmanaged<ShadowView>.fromOpaque(shadowViewPointer).takeUnretainedValue()
+                subviewArray?.append(shadowView)
+            }
+
+            return subviewArray
         }
     }
 
-    // TODO(唐佳诚)：修改类型为 ShadowView
     private var superview: ShadowView? {
         get {
-            nil;
+            let ownerNodeRef = YGNodeGetOwner(yogaNode)
+            guard ownerNodeRef != nil else {
+                return nil;
+            }
+            guard let shadowViewPointer = YGNodeGetContext(ownerNodeRef) else {
+                return nil;
+            }
+
+            return Unmanaged<ShadowView>.fromOpaque(shadowViewPointer).takeUnretainedValue()
         }
     }
 
     init() {
-        // TODO(唐佳诚)：初始化
+        intrinsicContentSizeStore = CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
+        yogaNode = YGNodeNewWithConfig(type(of: self).yogaConfig())
+        YGNodeSetContext(yogaNode, Unmanaged.passUnretained(self).toOpaque())
     }
 
     /// Yoga Config which will be used to create `yogaNode` property.
     /// Override in subclass to enable special Yoga features.
     /// Defaults to suitable to current device configuration.
     ///
-    /// - Returns: YGConfigRef
-    private class func yogaConfig() -> YGConfigRef {
-        globalYogaConfig.yogaConfig
+    /// - Returns: YGConfigRef?
+    private class func yogaConfig() -> YGConfigRef? {
+        globalYogaConfig
     }
 
     private func insertSubview(_ view: ShadowView, at index: Int) {
-        // TODO(唐佳诚): 插入 yogaNode
+        assert(canHaveSubviews(), "Attempt to insert subview inside leaf view.")
+        if !isYogaLeafNode() {
+            YGNodeInsertChild(yogaNode, view.yogaNode, UInt32(index))
+        }
     }
 
     private func removeSubview(_ subview: ShadowView) {
-        // TODO(唐佳诚)：判断 isYogaLeafNode 如果不是叶节点直接 YGNodeRemoveChild
+        if !isYogaLeafNode() {
+            YGNodeRemoveChild(yogaNode, subview.yogaNode)
+        }
     }
 
     // MARK: - Layout
@@ -745,7 +837,7 @@ fileprivate final class ShadowView {
      * Initiates layout starts from the view.
      */
     private func layout(minimumSize: CGSize, maximumSize: CGSize, layoutDirection: UIUserInterfaceLayoutDirection, layoutContext: LayoutContext) {
-
+//        let oldMinimumSize = CGSize(width: <#T##Double#>, height: <#T##Double#>)
     }
 
     /**
@@ -786,7 +878,7 @@ fileprivate final class ShadowView {
 
     /**
      * Returns whether or not this node acts as a leaf node in the eyes of Yoga.
-     * For example `RCTTextShadowView` has children which it does not want Yoga
+     * For example `TextShadowView` has children which it does not want Yoga
      * to lay out so in the eyes of Yoga it is a leaf node.
      * Defaults to `NO`. Can be overridden in subclasses.
      * Don't confuse this with `canHaveSubviews`.
