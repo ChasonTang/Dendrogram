@@ -13,6 +13,27 @@ fileprivate let screenScale = UIScreen.main.scale
 
 fileprivate let globalYogaConfig = YGConfigNew()
 
+fileprivate func YGNodeFreeRecursiveNew(root: YGNodeRef) {
+    var skipped: UInt32 = 0
+    while YGNodeGetChildCount(root) > skipped {
+        let childOrNil = YGNodeGetChild(root, skipped)
+        guard let child = childOrNil else {
+            continue
+        }
+        // 下面的 if 判断只会走一条分支，因为 cloneIfNeeded 是全克隆或者不克隆
+        if YGNodeGetOwner(child) != root {
+            skipped += 1
+        } else {
+            // 早期 Yoga YGNodeRemoveChild 会触发 clone，但是由于前面注释的原因，调用 remove 实际上不会触发 clone
+            YGNodeRemoveChild(root, child)
+            YGNodeFreeRecursiveNew(root: child)
+        }
+    }
+    // 剩下的都是指向原 owner 的 child，YGNodeFree 会破坏它们，因此需要先 removeAll，removeAll 方法取丢一个 child 判断是否其 owner 是自身，由于剩下都是 weak 指向的 child，因此直接会 reset vector
+    YGNodeRemoveAllChildren(root)
+    YGNodeFree(root)
+}
+
 fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMode: YGMeasureMode, _ height: Float, _ heightMode: YGMeasureMode) -> YGSize {
     var result: YGSize = YGSize()
 
@@ -885,32 +906,32 @@ final class ShadowView {
         if let layoutMetricsNotNil = layoutMetrics, layoutMetricsNotNil.displayType == .none {
             return;
         }
-        
+
         let count = YGNodeGetChildCount(yogaNode);
         for i in 0..<count {
             let childYogaNode = YGNodeGetChild(yogaNode, i)
-            
+
             assert(!YGNodeIsDirty(childYogaNode), "Attempt to get layout metrics from dirtied Yoga node.")
-            
+
             if !YGNodeGetHasNewLayout(childYogaNode) {
                 continue
             }
-            
+
             guard let childShadowViewPointer = YGNodeGetContext(childYogaNode) else {
                 continue
             }
-            
+
             YGNodeSetHasNewLayout(childYogaNode, false)
-            
+
             let childLayoutMetrics = LayoutMetricsFromYogaNode(childYogaNode)
-            
+
             context.absolutePosition.x += childLayoutMetrics.frame.origin.x;
             context.absolutePosition.y += childLayoutMetrics.frame.origin.y;
-            
+
             let childShadowView = Unmanaged<ShadowView>.fromOpaque(childShadowViewPointer).takeUnretainedValue()
-            
+
             childShadowView.layout(metrics: childLayoutMetrics, layoutContext: context)
-            
+
             // Recursive call.
             childShadowView.layoutSubviews(context: &context)
         }
@@ -921,8 +942,27 @@ final class ShadowView {
      * Default implementation uses Yoga for measuring.
      */
     private func sizeThatFitsMinimumSize(_ minimumSize: CGSize, maximumSize: CGSize) -> CGSize {
-        // TODO(唐佳诚): 重写
-        .zero
+        let clonedYogaNode = YGNodeClone(yogaNode)
+        let constraintYogaNodeOrNil = YGNodeNewWithConfig(type(of: self).yogaConfig())
+        
+        guard let constraintYogaNode = constraintYogaNodeOrNil else {
+            return .zero
+        }
+
+        YGNodeInsertChild(constraintYogaNode, clonedYogaNode, 0)
+
+        YGNodeStyleSetMinWidth(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.width))
+        YGNodeStyleSetMinHeight(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.height))
+        YGNodeStyleSetMaxWidth(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(maximumSize.width))
+        YGNodeStyleSetMaxHeight(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(maximumSize.height))
+
+        YGNodeCalculateLayout(constraintYogaNode, Float.nan, Float.nan, YogaLayoutDirectionFromUIKitLayoutDirection(layoutMetrics?.layoutDirection ?? .leftToRight))
+
+        let measuredSize = CGSize(width: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetWidth(constraintYogaNode)), height: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetHeight(constraintYogaNode)))
+
+        YGNodeFreeRecursiveNew(root: constraintYogaNode)
+
+        return measuredSize
     }
 
     /**
@@ -968,7 +1008,7 @@ final class ShadowView {
         if ancestor !== shadowView {
             return .null
         }
-        
+
         return CGRect(origin: offset, size: layoutMetrics?.frame.size ?? .zero)
     }
 
@@ -977,7 +1017,7 @@ final class ShadowView {
         while shadowView != nil && shadowView !== ancestor {
             shadowView = shadowView?.superview;
         }
-        
+
         return ancestor === shadowView
     }
 }
