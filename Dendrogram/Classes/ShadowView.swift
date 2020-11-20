@@ -944,7 +944,7 @@ final class ShadowView {
     private func sizeThatFitsMinimumSize(_ minimumSize: CGSize, maximumSize: CGSize) -> CGSize {
         let clonedYogaNode = YGNodeClone(yogaNode)
         let constraintYogaNodeOrNil = YGNodeNewWithConfig(type(of: self).yogaConfig())
-        
+
         guard let constraintYogaNode = constraintYogaNodeOrNil else {
             return .zero
         }
@@ -1019,5 +1019,49 @@ final class ShadowView {
         }
 
         return ancestor === shadowView
+    }
+}
+
+extension ShadowView {
+
+    var paddingAsInsets: UIEdgeInsets {
+        get {
+            UIEdgeInsets(top: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .top)), left: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .left)), bottom: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .bottom)), right: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .right)))
+        }
+    }
+
+    var borderAsInsets: UIEdgeInsets {
+        get {
+            UIEdgeInsets(top: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetBorder(yogaNode, .top)), left: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetBorder(yogaNode, .left)), bottom: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetBorder(yogaNode, .bottom)), right: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetBorder(yogaNode, .right)))
+        }
+    }
+
+    var compoundInsets: UIEdgeInsets {
+        get {
+            let borderAsInsets = self.borderAsInsets
+            let paddingAsInsets = self.paddingAsInsets
+
+            return UIEdgeInsets(top: borderAsInsets.top + paddingAsInsets.top, left: borderAsInsets.left + paddingAsInsets.left, bottom: borderAsInsets.bottom + paddingAsInsets.bottom, right: borderAsInsets.right + paddingAsInsets.right)
+        }
+    }
+
+    var availableSize: CGSize {
+        get {
+            layoutMetrics?.contentFrame.size ?? .zero
+        }
+    }
+
+    var contentFrame: CGRect {
+        get {
+            layoutMetrics?.contentFrame ?? .zero
+        }
+    }
+
+    private func dirtyLayout() {
+        // The default implementation does nothing.
+    }
+
+    private func clearLayout() {
+        // The default implementation does nothing.
     }
 }
