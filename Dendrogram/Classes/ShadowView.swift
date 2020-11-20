@@ -36,7 +36,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
     @unknown default:
         return result
     }
-    
+
     switch heightMode {
     case .undefined:
         result.height = Float(intrinsicContentSize.height)
@@ -807,6 +807,7 @@ final class ShadowView {
         intrinsicContentSizeStore = CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
         yogaNode = YGNodeNewWithConfig(type(of: self).yogaConfig())
         YGNodeSetContext(yogaNode, Unmanaged.passUnretained(self).toOpaque())
+        // print
     }
 
     /// Yoga Config which will be used to create `yogaNode` property.
@@ -833,11 +834,38 @@ final class ShadowView {
 
     // MARK: - Layout
 
-    /**
-     * Initiates layout starts from the view.
-     */
+    /// Initiates layout starts from the view.
+    ///
+    /// - Parameters:
+    ///   - minimumSize: CGSize 最小大小，会修改 yogaNode minWidth/Height
+    ///   - maximumSize: CGSize
+    ///   - layoutDirection: 布局方向
+    ///   - layoutContext: 布局上下文
     private func layout(minimumSize: CGSize, maximumSize: CGSize, layoutDirection: UIUserInterfaceLayoutDirection, layoutContext: LayoutContext) {
-//        let oldMinimumSize = CGSize(width: <#T##Double#>, height: <#T##Double#>)
+        let oldMinimumSize = CGSize(width: CoreGraphicsFloatFromYogaValue(YGNodeStyleGetMinWidth(yogaNode), 0.0), height: CoreGraphicsFloatFromYogaValue(YGNodeStyleGetMinHeight(yogaNode), 0.0))
+        if oldMinimumSize != minimumSize {
+            YGNodeStyleSetMinWidth(yogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.width))
+            YGNodeStyleSetMinHeight(yogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.height))
+        }
+
+        YGNodeCalculateLayout(yogaNode, YogaFloatFromCoreGraphicsFloat(maximumSize.width), YogaFloatFromCoreGraphicsFloat(maximumSize.height), YogaLayoutDirectionFromUIKitLayoutDirection(layoutDirection))
+
+        assert(!YGNodeIsDirty(yogaNode), "Attempt to get layout metrics from dirtied Yoga node.")
+
+        if !YGNodeGetHasNewLayout(yogaNode) {
+            return;
+        }
+
+        YGNodeSetHasNewLayout(yogaNode, false)
+
+        let layoutMetrics = LayoutMetricsFromYogaNode(yogaNode)
+
+        layoutContext.absolutePosition.x += layoutMetrics.frame.origin.x;
+        layoutContext.absolutePosition.y += layoutMetrics.frame.origin.y;
+
+        layout(metrics: layoutMetrics, layoutContext: layoutContext)
+
+        layoutSubviews(context: layoutContext)
     }
 
     /**

@@ -22,7 +22,7 @@ struct LayoutMetrics {
     let contentFrame: CGRect
 
     let borderWidth: UIEdgeInsets
-    
+
     let displayType: DisplayType
 
     let layoutDirection: UIUserInterfaceLayoutDirection
@@ -30,7 +30,7 @@ struct LayoutMetrics {
 
 struct LayoutContext {
 
-    let absolutePosition: CGPoint
+    var absolutePosition: CGPoint
 
     let affectedShadowViews: NSHashTable<ShadowView>
 
@@ -44,17 +44,17 @@ fileprivate func LayoutMetricsEqualToLayoutMetrics(_ a: LayoutMetrics, _ b: Layo
 }
 
 func LayoutMetricsFromYogaNode(_ yogaNode: YGNodeRef) -> LayoutMetrics {
-    let frame = CGRect(x: CoreGraphicsFloatFromYogaFloat(value: YGNodeLayoutGetLeft(yogaNode)), y: CoreGraphicsFloatFromYogaFloat(value: YGNodeLayoutGetTop(yogaNode)), width: CoreGraphicsFloatFromYogaFloat(value: YGNodeLayoutGetWidth(yogaNode)), height: CoreGraphicsFloatFromYogaFloat(value: YGNodeLayoutGetHeight(yogaNode)))
-    
-    let padding = UIEdgeInsets(top: CoreGraphicsFloatFromYogaFloat(value: YGNodeLayoutGetPadding(yogaNode, .top)), left: CoreGraphicsFloatFromYogaFloat(value: YGNodeLayoutGetPadding(yogaNode, .left)), bottom: CoreGraphicsFloatFromYogaFloat(value: YGNodeLayoutGetPadding(yogaNode, .bottom)), right: CoreGraphicsFloatFromYogaFloat(value: YGNodeLayoutGetPadding(yogaNode, .right)))
-    
-    let borderWidth = UIEdgeInsets(top: CoreGraphicsFloatFromYogaFloat(value: YGNodeStyleGetBorder(yogaNode, .top)), left: CoreGraphicsFloatFromYogaFloat(value: YGNodeStyleGetBorder(yogaNode, .left)), bottom: CoreGraphicsFloatFromYogaFloat(value: YGNodeStyleGetBorder(yogaNode, .bottom)), right: CoreGraphicsFloatFromYogaFloat(value: YGNodeStyleGetBorder(yogaNode, .right)))
-    
+    let frame = CGRect(x: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetLeft(yogaNode)), y: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetTop(yogaNode)), width: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetWidth(yogaNode)), height: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetHeight(yogaNode)))
+
+    let padding = UIEdgeInsets(top: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .top)), left: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .left)), bottom: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .bottom)), right: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .right)))
+
+    let borderWidth = UIEdgeInsets(top: CoreGraphicsFloatFromYogaFloat(YGNodeStyleGetBorder(yogaNode, .top)), left: CoreGraphicsFloatFromYogaFloat(YGNodeStyleGetBorder(yogaNode, .left)), bottom: CoreGraphicsFloatFromYogaFloat(YGNodeStyleGetBorder(yogaNode, .bottom)), right: CoreGraphicsFloatFromYogaFloat(YGNodeStyleGetBorder(yogaNode, .right)))
+
     let compoundInsets = UIEdgeInsets(top: borderWidth.top + padding.top, left: borderWidth.left + padding.left, bottom: borderWidth.bottom + padding.bottom, right: borderWidth.right + padding.right)
-    
+
     let bounds = CGRect(origin: .zero, size: frame.size)
     let contentFrame = bounds.inset(by: compoundInsets)
-    
+
     return LayoutMetrics(frame: frame, contentFrame: contentFrame, borderWidth: borderWidth, displayType: DisplayTypeFromYogaDisplayType(YGNodeStyleGetDisplay(yogaNode)), layoutDirection: UIKitLayoutDirectionFromYogaLayoutDirection(YGNodeLayoutGetDirection(yogaNode)))
 }
 
@@ -69,7 +69,8 @@ func YogaFloatFromCoreGraphicsFloat(_ value: CGFloat) -> Float {
 
     return Float(value)
 }
-func CoreGraphicsFloatFromYogaFloat(value: Float) -> CGFloat {
+
+func CoreGraphicsFloatFromYogaFloat(_ value: Float) -> CGFloat {
     if value == Float.nan || value.isNaN || value.isInfinite {
         return CGFloat.greatestFiniteMagnitude
     }
@@ -83,9 +84,9 @@ func CoreGraphicsFloatFromYogaFloat(value: Float) -> CGFloat {
 func CoreGraphicsFloatFromYogaValue(_ value: YGValue, _ baseFloatValue: CGFloat) -> CGFloat {
     switch value.unit {
     case .point:
-        return CoreGraphicsFloatFromYogaFloat(value: value.value)
+        return CoreGraphicsFloatFromYogaFloat(value.value)
     case .percent:
-        return CoreGraphicsFloatFromYogaFloat(value: value.value) * baseFloatValue
+        return CoreGraphicsFloatFromYogaFloat(value.value) * baseFloatValue
     case .auto: fallthrough
     case .undefined:
         return baseFloatValue
@@ -107,6 +108,7 @@ func YogaLayoutDirectionFromUIKitLayoutDirection(_ direction: UIUserInterfaceLay
         return .LTR
     }
 }
+
 func UIKitLayoutDirectionFromYogaLayoutDirection(_ direction: YGDirection) -> UIUserInterfaceLayoutDirection {
     switch direction {
     case .inherit: fallthrough
@@ -134,6 +136,7 @@ fileprivate func YogaDisplayTypeFromDisplayType(_ displayType: DisplayType) -> Y
         return .none
     }
 }
+
 fileprivate func DisplayTypeFromYogaDisplayType(_ displayType: YGDisplay) -> DisplayType {
     switch displayType {
     case .flex:
