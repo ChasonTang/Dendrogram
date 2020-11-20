@@ -43,7 +43,7 @@ fileprivate func LayoutMetricsEqualToLayoutMetrics(_ a: LayoutMetrics, _ b: Layo
     a.frame == b.frame && a.contentFrame == b.contentFrame && a.borderWidth == b.borderWidth && a.layoutDirection == b.layoutDirection
 }
 
-func LayoutMetricsFromYogaNode(_ yogaNode: YGNodeRef) -> LayoutMetrics {
+func LayoutMetricsFromYogaNode(_ yogaNode: YGNodeRef?) -> LayoutMetrics {
     let frame = CGRect(x: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetLeft(yogaNode)), y: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetTop(yogaNode)), width: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetWidth(yogaNode)), height: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetHeight(yogaNode)))
 
     let padding = UIEdgeInsets(top: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .top)), left: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .left)), bottom: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .bottom)), right: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .right)))

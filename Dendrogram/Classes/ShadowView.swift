@@ -841,7 +841,7 @@ final class ShadowView {
     ///   - maximumSize: CGSize
     ///   - layoutDirection: 布局方向
     ///   - layoutContext: 布局上下文
-    private func layout(minimumSize: CGSize, maximumSize: CGSize, layoutDirection: UIUserInterfaceLayoutDirection, layoutContext: LayoutContext) {
+    private func layout(minimumSize: CGSize, maximumSize: CGSize, layoutDirection: UIUserInterfaceLayoutDirection, layoutContext: inout LayoutContext) {
         let oldMinimumSize = CGSize(width: CoreGraphicsFloatFromYogaValue(YGNodeStyleGetMinWidth(yogaNode), 0.0), height: CoreGraphicsFloatFromYogaValue(YGNodeStyleGetMinHeight(yogaNode), 0.0))
         if oldMinimumSize != minimumSize {
             YGNodeStyleSetMinWidth(yogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.width))
@@ -865,21 +865,55 @@ final class ShadowView {
 
         layout(metrics: layoutMetrics, layoutContext: layoutContext)
 
-        layoutSubviews(context: layoutContext)
+        layoutSubviews(context: &layoutContext)
     }
 
     /**
      * Applies computed layout metrics to the view.
      */
     private func layout(metrics: LayoutMetrics, layoutContext: LayoutContext) {
-
+        if layoutMetrics != metrics {
+            layoutMetrics = metrics
+            layoutContext.affectedShadowViews.add(self)
+        }
     }
 
     /**
      * Calculates (if needed) and applies layout to subviews.
      */
-    private func layoutSubviews(context: LayoutContext) {
-
+    private func layoutSubviews(context: inout LayoutContext) {
+        if let layoutMetricsNotNil = layoutMetrics, layoutMetricsNotNil.displayType == .none {
+            return;
+        }
+        
+        let count = YGNodeGetChildCount(yogaNode);
+        for i in 0..<count {
+            let childYogaNode = YGNodeGetChild(yogaNode, i)
+            
+            assert(!YGNodeIsDirty(childYogaNode), "Attempt to get layout metrics from dirtied Yoga node.")
+            
+            if !YGNodeGetHasNewLayout(childYogaNode) {
+                continue
+            }
+            
+            guard let childShadowViewPointer = YGNodeGetContext(childYogaNode) else {
+                continue
+            }
+            
+            YGNodeSetHasNewLayout(childYogaNode, false)
+            
+            let childLayoutMetrics = LayoutMetricsFromYogaNode(childYogaNode)
+            
+            context.absolutePosition.x += childLayoutMetrics.frame.origin.x;
+            context.absolutePosition.y += childLayoutMetrics.frame.origin.y;
+            
+            let childShadowView = Unmanaged<ShadowView>.fromOpaque(childShadowViewPointer).takeUnretainedValue()
+            
+            childShadowView.layout(metrics: childLayoutMetrics, layoutContext: context)
+            
+            // Recursive call.
+            childShadowView.layoutSubviews(context: &context)
+        }
     }
 
     /**
@@ -924,12 +958,26 @@ final class ShadowView {
      * transforms or anchor points.
      */
     private func measureLayoutRelativeToAncestor(_ ancestor: ShadowView) -> CGRect {
-        // TODO(唐佳诚): 重写
-        .zero
+        var offset = CGPoint.zero
+        var shadowView: ShadowView? = self
+        while shadowView != nil && shadowView !== ancestor {
+            offset.x += shadowView?.layoutMetrics?.frame.origin.x ?? 0;
+            offset.y += shadowView?.layoutMetrics?.frame.origin.y ?? 0;
+            shadowView = shadowView?.superview;
+        }
+        if ancestor !== shadowView {
+            return .null
+        }
+        
+        return CGRect(origin: offset, size: layoutMetrics?.frame.size ?? .zero)
     }
 
     private func viewIsDescendantOf(_ ancestor: ShadowView) -> Bool {
-        // TODO(唐佳诚): 重写
-        false
+        var shadowView: ShadowView? = self
+        while shadowView != nil && shadowView !== ancestor {
+            shadowView = shadowView?.superview;
+        }
+        
+        return ancestor === shadowView
     }
 }
