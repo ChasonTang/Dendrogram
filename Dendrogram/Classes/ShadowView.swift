@@ -72,7 +72,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
     return result
 }
 
-class ShadowView {
+@objc class ShadowView: NSObject {
     final let yogaNode: YGNodeRef?
 
     private final var layoutMetrics: LayoutMetrics?;
@@ -823,9 +823,10 @@ class ShadowView {
         }
     }
 
-    init() {
+    override init() {
         intrinsicContentSizeStore = CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
         yogaNode = YGNodeNewWithConfig(type(of: self).yogaConfig())
+        super.init()
         YGNodeSetContext(yogaNode, Unmanaged.passUnretained(self).toOpaque())
         // print
     }

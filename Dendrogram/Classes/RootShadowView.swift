@@ -6,7 +6,7 @@
 
 import yoga
 
-struct RootShadowView {
+@objc final class RootShadowView: NSObject {
 
     let shadowView: ShadowView
 
