@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		187539EA256BB62500686746 /* ShadowViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187539E9256BB62500686746 /* ShadowViewTests.swift */; };
 		18D3D5C8255F1EF3000C99BE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3D5C7255F1EF3000C99BE /* AppDelegate.swift */; };
-		18D3D5CA255F1EF3000C99BE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3D5C9255F1EF3000C99BE /* SceneDelegate.swift */; };
 		18D3D5CC255F1EF3000C99BE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3D5CB255F1EF3000C99BE /* ViewController.swift */; };
 		18D3D5CF255F1EF3000C99BE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18D3D5CD255F1EF3000C99BE /* Main.storyboard */; };
 		18D3D5D1255F1EF4000C99BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18D3D5D0255F1EF4000C99BE /* Assets.xcassets */; };
@@ -30,9 +30,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		187539E9256BB62500686746 /* ShadowViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowViewTests.swift; sourceTree = "<group>"; };
 		18D3D5C4255F1EF3000C99BE /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18D3D5C7255F1EF3000C99BE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		18D3D5C9255F1EF3000C99BE /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		18D3D5CB255F1EF3000C99BE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		18D3D5CE255F1EF3000C99BE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		18D3D5D0255F1EF4000C99BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -103,7 +103,6 @@
 			isa = PBXGroup;
 			children = (
 				18D3D5C7255F1EF3000C99BE /* AppDelegate.swift */,
-				18D3D5C9255F1EF3000C99BE /* SceneDelegate.swift */,
 				18D3D5CB255F1EF3000C99BE /* ViewController.swift */,
 				18D3D5CD255F1EF3000C99BE /* Main.storyboard */,
 				18D3D5D0255F1EF4000C99BE /* Assets.xcassets */,
@@ -119,6 +118,7 @@
 				18D3D5DE255F1EF4000C99BE /* ExampleTests.swift */,
 				18F5C4C2255F2AEF003FE66C /* Tests.swift */,
 				18D3D5E0255F1EF4000C99BE /* Info.plist */,
+				187539E9256BB62500686746 /* ShadowViewTests.swift */,
 			);
 			path = ExampleTests;
 			sourceTree = "<group>";
@@ -190,6 +190,7 @@
 					};
 					18D3D5D9255F1EF4000C99BE = {
 						CreatedOnToolsVersion = 12.2;
+						LastSwiftMigration = 1220;
 						TestTargetID = 18D3D5C3255F1EF3000C99BE;
 					};
 				};
@@ -321,7 +322,6 @@
 			files = (
 				18D3D5CC255F1EF3000C99BE /* ViewController.swift in Sources */,
 				18D3D5C8255F1EF3000C99BE /* AppDelegate.swift in Sources */,
-				18D3D5CA255F1EF3000C99BE /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,6 +329,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				187539EA256BB62500686746 /* ShadowViewTests.swift in Sources */,
 				18D3D5DF255F1EF4000C99BE /* ExampleTests.swift in Sources */,
 				18F5C4C3255F2AEF003FE66C /* Tests.swift in Sources */,
 			);
@@ -488,6 +489,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = Example/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -507,6 +509,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = Example/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -523,6 +526,7 @@
 			baseConfigurationReference = 5300F844247CE794B310EF66 /* Pods-ExampleTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = ExampleTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
@@ -533,6 +537,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.warmbloom.ExampleTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example.app/Example";
@@ -544,6 +549,7 @@
 			baseConfigurationReference = D695C8A0E61A0F15C3B93896 /* Pods-ExampleTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = ExampleTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
