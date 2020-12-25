@@ -6,7 +6,7 @@ target 'Example' do
   use_frameworks!
 
   # Pods for Example
-  pod 'Dendrogram', :path => '../'
+  pod 'Dendrogram', :path => '.'
 
   target 'ExampleTests' do
     inherit! :search_paths

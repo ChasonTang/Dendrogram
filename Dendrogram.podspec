@@ -41,5 +41,5 @@ TODO: Add long description of the pod here.
   # s.dependency 'AFNetworking', '~> 2.3'
   s.dependency 'Yoga', '~> 1.14.0'
   
-  s.swift_versions = ['5.0', '5.1', '5.2', '5.3']
+  s.swift_versions = ['5.3']
 end

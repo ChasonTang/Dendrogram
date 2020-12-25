@@ -6,7 +6,7 @@ PODS:
   - Yoga (1.14.0)
 
 DEPENDENCIES:
-  - Dendrogram (from `../`)
+  - Dendrogram (from `.`)
   - Nimble (~> 9.0.0)
   - Quick (~> 3.0.0)
 
@@ -18,7 +18,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   Dendrogram:
-    :path: "../"
+    :path: "."
 
 SPEC CHECKSUMS:
   Dendrogram: 3ec07defd25e42b80f5c5fb5d18f2e44d0ddb752
@@ -26,6 +26,6 @@ SPEC CHECKSUMS:
   Quick: 6d9559f40647bc4d510103842ef2fdd882d753e2
   Yoga: cff67a400f6b74dc38eb0bad4f156673d9aa980c
 
-PODFILE CHECKSUM: 88f3bb5af0a83279ebd8ae87705e5e3d7bfcfd13
+PODFILE CHECKSUM: 4d8e8566d470701c6dff9577acc4200e5962f4a2
 
 COCOAPODS: 1.9.3
