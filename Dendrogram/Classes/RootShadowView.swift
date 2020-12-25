@@ -6,8 +6,9 @@
 
 import yoga
 
-@objc final class RootShadowView: NSObject {
+struct RootShadowView {
 
+    // 单元测试需要 internal
     let shadowView: ShadowView
 
     /**
@@ -36,6 +37,7 @@ import yoga
         availableSize = CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
     }
 
+    // Unit Test
     func layout(affectedShadowViews: NSHashTable<ShadowView>) {
         let other = NSHashTable<NSString>()
 

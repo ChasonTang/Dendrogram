@@ -39,7 +39,7 @@ struct LayoutContext {
 }
 
 @available(*, deprecated, message: "实现了 Equatable 协议，直接使用 == 比较")
-fileprivate func LayoutMetricsEqualToLayoutMetrics(_ a: LayoutMetrics, _ b: LayoutMetrics) -> Bool {
+private func LayoutMetricsEqualToLayoutMetrics(_ a: LayoutMetrics, _ b: LayoutMetrics) -> Bool {
     a.frame == b.frame && a.contentFrame == b.contentFrame && a.borderWidth == b.borderWidth && a.layoutDirection == b.layoutDirection
 }
 
@@ -90,6 +90,7 @@ func CoreGraphicsFloatFromYogaValue(_ value: YGValue, _ baseFloatValue: CGFloat)
     case .auto: fallthrough
     case .undefined:
         return baseFloatValue
+
     @unknown default:
         return baseFloatValue
     }
@@ -104,6 +105,7 @@ func YogaLayoutDirectionFromUIKitLayoutDirection(_ direction: UIUserInterfaceLay
         return .RTL
     case .leftToRight:
         return .LTR
+
     @unknown default:
         return .LTR
     }
@@ -116,6 +118,7 @@ func UIKitLayoutDirectionFromYogaLayoutDirection(_ direction: YGDirection) -> UI
         return .leftToRight
     case .RTL:
         return .rightToLeft
+
     @unknown default:
         return .leftToRight
     }
@@ -124,7 +127,7 @@ func UIKitLayoutDirectionFromYogaLayoutDirection(_ direction: YGDirection) -> UI
 /**
  * Converts `YGDisplay` to `DisplayType` and vise versa.
  */
-fileprivate func YogaDisplayTypeFromDisplayType(_ displayType: DisplayType) -> YGDisplay {
+private func YogaDisplayTypeFromDisplayType(_ displayType: DisplayType) -> YGDisplay {
     switch displayType {
     case .none:
         return .none
@@ -137,20 +140,23 @@ fileprivate func YogaDisplayTypeFromDisplayType(_ displayType: DisplayType) -> Y
     }
 }
 
-fileprivate func DisplayTypeFromYogaDisplayType(_ displayType: YGDisplay) -> DisplayType {
+private func DisplayTypeFromYogaDisplayType(_ displayType: YGDisplay) -> DisplayType {
     switch displayType {
     case .flex:
         return .flex
     case .none:
         return .none
+
     @unknown default:
         return .none
     }
 }
 
+// extension conform 协议的不能添加 Access-Control
 extension LayoutMetrics: Equatable {
 
-    public static func ==(a: LayoutMetrics, b: LayoutMetrics) -> Bool {
+    // Equatable == 方法默认为 internal
+    static func ==(a: LayoutMetrics, b: LayoutMetrics) -> Bool {
         a.frame == b.frame && a.contentFrame == b.contentFrame && a.borderWidth == b.borderWidth && a.layoutDirection == b.layoutDirection
     }
 }
