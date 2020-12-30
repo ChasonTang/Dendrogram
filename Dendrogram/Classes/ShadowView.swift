@@ -895,9 +895,9 @@ class ShadowView {
     private final var superview: ShadowView? {
         get {
             let ownerNodeRef = YGNodeGetOwner(yogaNode)
-            guard ownerNodeRef != nil else {
-                return nil;
-            }
+//            guard ownerNodeRef != nil else {
+//                return nil;
+//            }
             guard let shadowViewPointer = YGNodeGetContext(ownerNodeRef) else {
                 return nil;
             }
@@ -1140,7 +1140,7 @@ class ShadowView {
         }
     }
 
-    private final func dirtyLayout() {
+    func dirtyLayout() {
         // The default implementation does nothing.
     }
 }
