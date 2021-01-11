@@ -15,13 +15,13 @@ struct RootShadowView {
      * Minimum size to layout all views.
      * Defaults to CGSizeZero
      */
-    private var minimumSize: CGSize
+    var minimumSize: CGSize
 
     /**
      * Available size to layout all views.
      * Defaults to {INFINITY, INFINITY}
      */
-    private var availableSize: CGSize
+    var availableSize: CGSize
 
     /**
      * Layout direction (LTR or RTL) inherited from native environment and

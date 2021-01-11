@@ -22,7 +22,7 @@ private struct YogaConfigWrapper {
     }
 }
 
-private func YGNodeFreeRecursiveNew(root: YGNodeRef) {
+private func YGNodeFreeRecursiveNew(root: YGNodeRef?) {
     var skipped: UInt32 = 0
     while YGNodeGetChildCount(root) > skipped {
         let childOrNil = YGNodeGetChild(root, skipped)
@@ -87,7 +87,7 @@ class ShadowView {
     // 单元测试需要 internal
     final let yogaNode: YGNodeRef?
 
-    private final var layoutMetrics: LayoutMetrics?;
+    final var layoutMetrics: LayoutMetrics?
 
     /**
      * Position and dimensions.
@@ -892,7 +892,7 @@ class ShadowView {
         }
     }
 
-    private final var superview: ShadowView? {
+    final var superview: ShadowView? {
         get {
             let ownerNodeRef = YGNodeGetOwner(yogaNode)
             // if owner == nullptr, YGNodeGetContext will crash
@@ -931,7 +931,7 @@ class ShadowView {
         }
     }
 
-    private final func removeSubview(_ subview: ShadowView) {
+    final func removeSubview(_ subview: ShadowView) {
         if !isYogaLeafNode() {
             YGNodeRemoveChild(yogaNode, subview.yogaNode)
         }
@@ -1025,26 +1025,16 @@ class ShadowView {
      * Measures shadow view without side-effects.
      * Default implementation uses Yoga for measuring.
      */
-    private final func sizeThatFitsMinimumSize(_ minimumSize: CGSize, maximumSize: CGSize) -> CGSize {
+    private final func sizeThatFits(maximumSize: CGSize) -> CGSize {
+        let maxWidth = YogaFloatFromCoreGraphicsFloat(maximumSize.width)
+        let maxHeight = YogaFloatFromCoreGraphicsFloat(maximumSize.height)
         let clonedYogaNode = YGNodeClone(yogaNode)
-        let constraintYogaNodeOrNil = YGNodeNewWithConfig(type(of: self).yogaConfig())
 
-        guard let constraintYogaNode = constraintYogaNodeOrNil else {
-            return .zero
-        }
+        YGNodeCalculateLayout(clonedYogaNode, maxWidth, maxHeight, YogaLayoutDirectionFromUIKitLayoutDirection(layoutMetrics?.layoutDirection ?? .leftToRight))
 
-        YGNodeInsertChild(constraintYogaNode, clonedYogaNode, 0)
+        let measuredSize = CGSize(width: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetWidth(clonedYogaNode)), height: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetHeight(clonedYogaNode)))
 
-        YGNodeStyleSetMinWidth(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.width))
-        YGNodeStyleSetMinHeight(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.height))
-        YGNodeStyleSetMaxWidth(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(maximumSize.width))
-        YGNodeStyleSetMaxHeight(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(maximumSize.height))
-
-        YGNodeCalculateLayout(constraintYogaNode, Float.nan, Float.nan, YogaLayoutDirectionFromUIKitLayoutDirection(layoutMetrics?.layoutDirection ?? .leftToRight))
-
-        let measuredSize = CGSize(width: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetWidth(constraintYogaNode)), height: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetHeight(constraintYogaNode)))
-
-        YGNodeFreeRecursiveNew(root: constraintYogaNode)
+        YGNodeFreeRecursiveNew(root: clonedYogaNode)
 
         return measuredSize
     }
