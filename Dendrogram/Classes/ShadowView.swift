@@ -895,9 +895,10 @@ class ShadowView {
     private final var superview: ShadowView? {
         get {
             let ownerNodeRef = YGNodeGetOwner(yogaNode)
-//            guard ownerNodeRef != nil else {
-//                return nil;
-//            }
+            // if owner == nullptr, YGNodeGetContext will crash
+            guard ownerNodeRef != nil else {
+                return nil;
+            }
             guard let shadowViewPointer = YGNodeGetContext(ownerNodeRef) else {
                 return nil;
             }
