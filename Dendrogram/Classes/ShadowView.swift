@@ -9,11 +9,20 @@ import Foundation
 import yoga
 
 // lazy
-fileprivate let screenScale = UIScreen.main.scale
+private let screenScale = UIScreen.main.scale
 
-fileprivate let globalYogaConfig = YGConfigNew()
+private let globalYogaConfig = YogaConfigWrapper()
 
-fileprivate func YGNodeFreeRecursiveNew(root: YGNodeRef) {
+private struct YogaConfigWrapper {
+    fileprivate let yogaConfigRef: YGConfigRef?
+
+    init() {
+        yogaConfigRef = YGConfigNew();
+        YGConfigSetPointScaleFactor(yogaConfigRef, Float(screenScale))
+    }
+}
+
+private func YGNodeFreeRecursiveNew(root: YGNodeRef) {
     var skipped: UInt32 = 0
     while YGNodeGetChildCount(root) > skipped {
         let childOrNil = YGNodeGetChild(root, skipped)
@@ -34,7 +43,7 @@ fileprivate func YGNodeFreeRecursiveNew(root: YGNodeRef) {
     YGNodeFree(root)
 }
 
-fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMode: YGMeasureMode, _ height: Float, _ heightMode: YGMeasureMode) -> YGSize {
+private func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMode: YGMeasureMode, _ height: Float, _ heightMode: YGMeasureMode) -> YGSize {
     var result: YGSize = YGSize()
 
     guard let shadowViewPointer = YGNodeGetContext(node) else {
@@ -54,6 +63,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
         result.width = width
     case .atMost:
         result.width = min(width, Float(intrinsicContentSize.width))
+
     @unknown default:
         return result
     }
@@ -65,6 +75,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
         result.height = height
     case .atMost:
         result.height = min(height, Float(intrinsicContentSize.height))
+
     @unknown default:
         return result
     }
@@ -72,7 +83,8 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
     return result
 }
 
-@objc class ShadowView: NSObject {
+class ShadowView {
+    // 单元测试需要 internal
     final let yogaNode: YGNodeRef?
 
     private final var layoutMetrics: LayoutMetrics?;
@@ -91,11 +103,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPosition(yogaNode, .top, Float.nan)
             case .point: YGNodeStyleSetPosition(yogaNode, .top, newValue.value)
             case .percent: YGNodeStyleSetPositionPercent(yogaNode, .top, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var left: YGValue {
         get {
             YGNodeStyleGetPosition(yogaNode, .left)
@@ -106,11 +120,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPosition(yogaNode, .left, Float.nan)
             case .point: YGNodeStyleSetPosition(yogaNode, .left, newValue.value)
             case .percent: YGNodeStyleSetPositionPercent(yogaNode, .left, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var bottom: YGValue {
         get {
             YGNodeStyleGetPosition(yogaNode, .bottom)
@@ -121,11 +137,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPosition(yogaNode, .bottom, Float.nan)
             case .point: YGNodeStyleSetPosition(yogaNode, .bottom, newValue.value)
             case .percent: YGNodeStyleSetPositionPercent(yogaNode, .bottom, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var right: YGValue {
         get {
             YGNodeStyleGetPosition(yogaNode, .right)
@@ -136,11 +154,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPosition(yogaNode, .right, Float.nan)
             case .point: YGNodeStyleSetPosition(yogaNode, .right, newValue.value)
             case .percent: YGNodeStyleSetPositionPercent(yogaNode, .right, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var start: YGValue {
         get {
             YGNodeStyleGetPosition(yogaNode, .start)
@@ -151,11 +171,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPosition(yogaNode, .start, Float.nan)
             case .point: YGNodeStyleSetPosition(yogaNode, .start, newValue.value)
             case .percent: YGNodeStyleSetPositionPercent(yogaNode, .start, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var end: YGValue {
         get {
             YGNodeStyleGetPosition(yogaNode, .end)
@@ -166,6 +188,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPosition(yogaNode, .end, Float.nan)
             case .point: YGNodeStyleSetPosition(yogaNode, .end, newValue.value)
             case .percent: YGNodeStyleSetPositionPercent(yogaNode, .end, newValue.value)
+
             @unknown default:
                 fatalError()
             }
@@ -182,11 +205,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetWidth(yogaNode, Float.nan)
             case .point: YGNodeStyleSetWidth(yogaNode, newValue.value)
             case .percent: YGNodeStyleSetWidthPercent(yogaNode, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var height: YGValue {
         get {
             YGNodeStyleGetHeight(yogaNode)
@@ -197,6 +222,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetHeight(yogaNode, Float.nan)
             case .point: YGNodeStyleSetHeight(yogaNode, newValue.value)
             case .percent: YGNodeStyleSetHeightPercent(yogaNode, newValue.value)
+
             @unknown default:
                 fatalError()
             }
@@ -213,11 +239,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMinWidth(yogaNode, Float.nan)
             case .point: YGNodeStyleSetMinWidth(yogaNode, newValue.value)
             case .percent: YGNodeStyleSetMinWidthPercent(yogaNode, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var maxWidth: YGValue {
         get {
             YGNodeStyleGetMaxWidth(yogaNode)
@@ -228,11 +256,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMaxWidth(yogaNode, Float.nan)
             case .point: YGNodeStyleSetMaxWidth(yogaNode, newValue.value)
             case .percent: YGNodeStyleSetMaxWidthPercent(yogaNode, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var minHeight: YGValue {
         get {
             YGNodeStyleGetMinHeight(yogaNode)
@@ -243,11 +273,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMinHeight(yogaNode, Float.nan)
             case .point: YGNodeStyleSetMinHeight(yogaNode, newValue.value)
             case .percent: YGNodeStyleSetMinHeightPercent(yogaNode, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var maxHeight: YGValue {
         get {
             YGNodeStyleGetMaxHeight(yogaNode)
@@ -258,6 +290,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMaxHeight(yogaNode, Float.nan)
             case .point: YGNodeStyleSetMaxHeight(yogaNode, newValue.value)
             case .percent: YGNodeStyleSetMaxHeightPercent(yogaNode, newValue.value)
+
             @unknown default:
                 fatalError()
             }
@@ -293,6 +326,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetBorder(yogaNode, .all, newValue)
         }
     }
+
     private final var borderTopWidth: Float {
         get {
             YGNodeStyleGetBorder(yogaNode, .top)
@@ -301,6 +335,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetBorder(yogaNode, .top, newValue)
         }
     }
+
     private final var borderLeftWidth: Float {
         get {
             YGNodeStyleGetBorder(yogaNode, .left)
@@ -309,6 +344,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetBorder(yogaNode, .left, newValue)
         }
     }
+
     private final var borderBottomWidth: Float {
         get {
             YGNodeStyleGetBorder(yogaNode, .bottom)
@@ -317,6 +353,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetBorder(yogaNode, .bottom, newValue)
         }
     }
+
     private final var borderRightWidth: Float {
         get {
             YGNodeStyleGetBorder(yogaNode, .right)
@@ -325,6 +362,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetBorder(yogaNode, .right, newValue)
         }
     }
+
     private final var borderStartWidth: Float {
         get {
             YGNodeStyleGetBorder(yogaNode, .start)
@@ -355,11 +393,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .all, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .all, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .all, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var marginVertical: YGValue {
         get {
             YGNodeStyleGetMargin(yogaNode, .vertical)
@@ -370,11 +410,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .vertical, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .vertical, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .vertical, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var marginHorizontal: YGValue {
         get {
             YGNodeStyleGetMargin(yogaNode, .horizontal)
@@ -385,11 +427,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .horizontal, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .horizontal, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .horizontal, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var marginTop: YGValue {
         get {
             YGNodeStyleGetMargin(yogaNode, .top)
@@ -400,11 +444,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .top, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .top, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .top, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var marginLeft: YGValue {
         get {
             YGNodeStyleGetMargin(yogaNode, .left)
@@ -415,11 +461,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .left, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .left, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .left, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var marginBottom: YGValue {
         get {
             YGNodeStyleGetMargin(yogaNode, .bottom)
@@ -430,11 +478,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .bottom, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .bottom, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .bottom, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var marginRight: YGValue {
         get {
             YGNodeStyleGetMargin(yogaNode, .right)
@@ -445,11 +495,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .right, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .right, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .right, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var marginStart: YGValue {
         get {
             YGNodeStyleGetMargin(yogaNode, .start)
@@ -460,11 +512,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .start, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .start, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .start, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var marginEnd: YGValue {
         get {
             YGNodeStyleGetMargin(yogaNode, .end)
@@ -475,6 +529,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetMargin(yogaNode, .end, Float.nan)
             case .point: YGNodeStyleSetMargin(yogaNode, .end, newValue.value)
             case .percent: YGNodeStyleSetMarginPercent(yogaNode, .end, newValue.value)
+
             @unknown default:
                 fatalError()
             }
@@ -494,11 +549,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .end, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .end, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .end, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var paddingVertical: YGValue {
         get {
             YGNodeStyleGetPadding(yogaNode, .vertical)
@@ -509,11 +566,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .vertical, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .vertical, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .vertical, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var paddingHorizontal: YGValue {
         get {
             YGNodeStyleGetPadding(yogaNode, .horizontal)
@@ -524,11 +583,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .horizontal, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .horizontal, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .horizontal, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var paddingTop: YGValue {
         get {
             YGNodeStyleGetPadding(yogaNode, .top)
@@ -539,11 +600,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .top, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .top, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .top, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var paddingLeft: YGValue {
         get {
             YGNodeStyleGetPadding(yogaNode, .left)
@@ -554,11 +617,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .left, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .left, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .left, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var paddingBottom: YGValue {
         get {
             YGNodeStyleGetPadding(yogaNode, .bottom)
@@ -569,11 +634,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .bottom, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .bottom, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .bottom, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var paddingRight: YGValue {
         get {
             YGNodeStyleGetPadding(yogaNode, .right)
@@ -584,11 +651,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .right, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .right, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .right, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var paddingStart: YGValue {
         get {
             YGNodeStyleGetPadding(yogaNode, .start)
@@ -599,11 +668,13 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .start, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .start, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .start, newValue.value)
+
             @unknown default:
                 fatalError()
             }
         }
     }
+
     private final var paddingEnd: YGValue {
         get {
             YGNodeStyleGetPadding(yogaNode, .end)
@@ -614,6 +685,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetPadding(yogaNode, .end, Float.nan)
             case .point: YGNodeStyleSetPadding(yogaNode, .end, newValue.value)
             case .percent: YGNodeStyleSetPaddingPercent(yogaNode, .end, newValue.value)
+
             @unknown default:
                 fatalError()
             }
@@ -631,6 +703,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetFlexDirection(yogaNode, newValue)
         }
     }
+
     private final var justifyContent: YGJustify {
         get {
             YGNodeStyleGetJustifyContent(yogaNode)
@@ -639,6 +712,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetJustifyContent(yogaNode, newValue)
         }
     }
+
     private final var alignSelf: YGAlign {
         get {
             YGNodeStyleGetAlignSelf(yogaNode)
@@ -647,6 +721,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetAlignSelf(yogaNode, newValue)
         }
     }
+
     private final var alignItems: YGAlign {
         get {
             YGNodeStyleGetAlignItems(yogaNode)
@@ -663,6 +738,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetAlignContent(yogaNode, newValue)
         }
     }
+
     private final var position: YGPositionType {
         get {
             YGNodeStyleGetPositionType(yogaNode)
@@ -671,6 +747,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetPositionType(yogaNode, newValue)
         }
     }
+
     private final var flexWrap: YGWrap {
         get {
             YGNodeStyleGetFlexWrap(yogaNode)
@@ -679,6 +756,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetFlexWrap(yogaNode, newValue)
         }
     }
+
     private final var display: YGDisplay {
         get {
             YGNodeStyleGetDisplay(yogaNode)
@@ -696,6 +774,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetFlex(yogaNode, newValue)
         }
     }
+
     private final var flexGrow: Float {
         get {
             YGNodeStyleGetFlexGrow(yogaNode)
@@ -704,6 +783,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetFlexGrow(yogaNode, newValue)
         }
     }
+
     private final var flexShrink: Float {
         get {
             YGNodeStyleGetFlexShrink(yogaNode)
@@ -712,6 +792,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             YGNodeStyleSetFlexShrink(yogaNode, newValue)
         }
     }
+
     private final var flexBasis: YGValue {
         get {
             YGNodeStyleGetFlexBasis(yogaNode)
@@ -722,6 +803,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
             case .undefined: YGNodeStyleSetFlexBasis(yogaNode, Float.nan)
             case .point: YGNodeStyleSetFlexBasis(yogaNode, newValue.value)
             case .percent: YGNodeStyleSetFlexBasisPercent(yogaNode, newValue.value)
+
             @unknown default:
                 fatalError()
             }
@@ -763,6 +845,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
 
     private final var intrinsicContentSizeStore: CGSize
 
+    // Unit Test
     /**
      * Represents the natural size of the view, which is used when explicit size is not set or is ambiguous.
      * Defaults to `{UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric}`.
@@ -812,6 +895,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
     private final var superview: ShadowView? {
         get {
             let ownerNodeRef = YGNodeGetOwner(yogaNode)
+            // if owner == nullptr, YGNodeGetContext will crash
             guard ownerNodeRef != nil else {
                 return nil;
             }
@@ -823,10 +907,9 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
         }
     }
 
-    override init() {
+    init() {
         intrinsicContentSizeStore = CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
         yogaNode = YGNodeNewWithConfig(type(of: self).yogaConfig())
-        super.init()
         YGNodeSetContext(yogaNode, Unmanaged.passUnretained(self).toOpaque())
         // print
     }
@@ -837,9 +920,10 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
     ///
     /// - Returns: YGConfigRef?
     private final class func yogaConfig() -> YGConfigRef? {
-        globalYogaConfig
+        globalYogaConfig.yogaConfigRef
     }
 
+    // Unit Test
     final func insertSubview(_ view: ShadowView, at index: Int) {
         assert(canHaveSubviews(), "Attempt to insert subview inside leaf view.")
         if !isYogaLeafNode() {
@@ -989,6 +1073,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
         false;
     }
 
+    // Unit Test
     /**
      * Computes the recursive offset, meaning the sum of all descendant offsets -
      * this is the sum of all positions inset from parents. This is not merely the
@@ -1012,6 +1097,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
         return CGRect(origin: offset, size: layoutMetrics?.frame.size ?? .zero)
     }
 
+    // Unit Test
     final func viewIsDescendantOf(_ ancestor: ShadowView) -> Bool {
         var shadowView: ShadowView? = self
         while shadowView != nil && shadowView !== ancestor {
@@ -1021,6 +1107,7 @@ fileprivate func ShadowViewMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMo
         return ancestor === shadowView
     }
 
+    // Unit Test
     final var paddingAsInsets: UIEdgeInsets {
         get {
             UIEdgeInsets(top: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .top)), left: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .left)), bottom: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .bottom)), right: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetPadding(yogaNode, .right)))

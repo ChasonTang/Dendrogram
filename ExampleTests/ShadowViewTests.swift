@@ -10,11 +10,11 @@ import yoga
 @testable import Dendrogram
 import XCTest
 
-final class ShadowViewTests: XCTestCase {
+private final class ShadowViewTests: XCTestCase {
 
     private var parentView: RootShadowView?
 
-    override func setUp() {
+    fileprivate override func setUp() {
         super.setUp()
 
         parentView = RootShadowView(shadowView: ShadowView())
