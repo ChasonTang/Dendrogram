@@ -18,7 +18,7 @@ private func sanitizeMeasurement(_ constrainedSize: CGFloat, _ measuredSize: CGF
     }
 }
 
-private func compatibleMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMode: YGMeasureMode, _ height: Float, _ heightMode: YGMeasureMode) -> YGSize {
+func compatibleMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMode: YGMeasureMode, _ height: Float, _ heightMode: YGMeasureMode) -> YGSize {
     let constrainedWidth = widthMode == .undefined ? CGFloat.greatestFiniteMagnitude : CGFloat(width);
     let constrainedHeight = heightMode == .undefined ? CGFloat.greatestFiniteMagnitude : CGFloat(height);
 
@@ -27,9 +27,7 @@ private func compatibleMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMode: 
         return YGSize(width: 0, height: 0)
     }
     let shadowView = Unmanaged<CompatibleShadowView>.fromOpaque(shadowViewPointer).takeUnretainedValue()
-    guard let view = shadowView.view else {
-        return YGSize(width: 0, height: 0)
-    }
+    let view = shadowView.view
     var sizeThatFits = CGSize.zero;
     
     if !Thread.isMainThread {
@@ -51,15 +49,20 @@ private func compatibleMeasure(_ node: YGNodeRef?, _ width: Float, _ widthMode: 
     return YGSize(width: Float(sanitizeMeasurement(constrainedWidth, sizeThatFits.width, widthMode)), height: Float(sanitizeMeasurement(constrainedHeight, sizeThatFits.height, heightMode)))
 }
 
-private final class CompatibleShadowView: ShadowView {
-    
-    var view: UIView?
-    
+final class CompatibleShadowView: ShadowView {
+
+    var view: UIView
+
+    init(view: UIView) {
+        self.view = view
+        super.init()
+    }
+
     override func dirtyLayout() {
         super.dirtyLayout()
         if !Thread.isMainThread {
             assert(false, "Is not in main thread")
-            
+
             return
         }
         // 1. 叶节点 -> 叶节点（脏），需要 markDirty + setNeedsLayout
@@ -70,5 +73,32 @@ private final class CompatibleShadowView: ShadowView {
         if YGNodeGetChildCount(yogaNode) == 0 {
             YGNodeMarkDirty(yogaNode)
         }
+    }
+
+    var isLeaf: Bool {
+        get {
+            assert(Thread.isMainThread, "This method must be called on the main thread.")
+            for _ in view.subviews {
+                // 根据 View 获取 CompatibleShadowView，如果存在则返回 false
+                if (view.isDMLayoutEnabled) {
+                    return false
+                }
+            }
+
+            return true
+        }
+    }
+
+    func hasExactSameChildren(children: Array<ShadowView>?) -> Bool {
+        if YGNodeGetChildCount(yogaNode) != children?.count ?? 0 {
+            return false
+        }
+        for i in 0..<(children?.count ?? 0) {
+            if YGNodeGetChild(yogaNode, UInt32(i)) != children?[i].yogaNode {
+                return false
+            }
+        }
+
+        return true
     }
 }
