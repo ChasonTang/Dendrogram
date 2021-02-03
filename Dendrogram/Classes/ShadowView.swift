@@ -1020,22 +1020,28 @@ class ShadowView {
             childShadowView.layoutSubviews(context: &context)
         }
     }
-
+    
     /**
      * Measures shadow view without side-effects.
      * Default implementation uses Yoga for measuring.
      */
-    private final func sizeThatFits(maximumSize: CGSize) -> CGSize {
-        let maxWidth = YogaFloatFromCoreGraphicsFloat(maximumSize.width)
-        let maxHeight = YogaFloatFromCoreGraphicsFloat(maximumSize.height)
+    private final func sizeThatFits(minimumSize: CGSize, maximumSize: CGSize) -> CGSize {
         let clonedYogaNode = YGNodeClone(yogaNode)
-
-        YGNodeCalculateLayout(clonedYogaNode, maxWidth, maxHeight, YogaLayoutDirectionFromUIKitLayoutDirection(layoutMetrics?.layoutDirection ?? .leftToRight))
-
-        let measuredSize = CGSize(width: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetWidth(clonedYogaNode)), height: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetHeight(clonedYogaNode)))
-
+        let constraintYogaNode = YGNodeNewWithConfig(ShadowView.yogaConfig())
+        
+        YGNodeInsertChild(constraintYogaNode, clonedYogaNode, 0)
+        
+        YGNodeStyleSetMinWidth(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.width))
+        YGNodeStyleSetMinHeight(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(minimumSize.height))
+        YGNodeStyleSetMaxWidth(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(maximumSize.width))
+        YGNodeStyleSetMaxHeight(constraintYogaNode, YogaFloatFromCoreGraphicsFloat(maximumSize.height))
+        
+        YGNodeCalculateLayout(constraintYogaNode, Float.nan, Float.nan, YogaLayoutDirectionFromUIKitLayoutDirection(layoutMetrics?.layoutDirection ?? .leftToRight))
+        
+        let measuredSize = CGSize(width: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetWidth(constraintYogaNode)), height: CoreGraphicsFloatFromYogaFloat(YGNodeLayoutGetHeight(constraintYogaNode)))
+        
         YGNodeFreeRecursiveNew(root: clonedYogaNode)
-
+        
         return measuredSize
     }
 
